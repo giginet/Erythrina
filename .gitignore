@@ -9,3 +9,5 @@ DerivedData/
 
 *.pdx
 build/
+*.elf
+*.dylib
