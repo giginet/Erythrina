@@ -45,15 +45,25 @@ let package = Package(
             name: "CPlaydate",
             targets: ["CPlaydate"]
         ),
+        .library(
+            name: "Playdate",
+            targets: ["Playdate"]
+        ),
     ],
     targets: [
         .target(
             name: "Erythrina",
+            dependencies: ["Playdate"],
             swiftSettings: swiftSettingsSimulator,
         ),
         .target(
             name: "CPlaydate",
             cSettings: cSettingsSimulator,
         ),
+        .target(
+            name: "Playdate",
+            dependencies: ["CPlaydate"],
+            swiftSettings: swiftSettingsSimulator,
+        )
     ]
 )
