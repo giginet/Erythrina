@@ -24,6 +24,8 @@ public func eventHandler(
         // Setup the `update` function below as the function to call on each game
         // runloop tick.
         System.setUpdateCallback(update: { game.update(pointer: $0) }, userdata: nil)
+        
+        game.initialize()
     }
     return 0
 }
