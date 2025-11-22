@@ -41,7 +41,7 @@ final class Game: @unchecked Sendable {
 
         // Update bombs position (falling)
         for bomb in bombs {
-            bomb.velocity = Vector(x: 0, y: 2)
+            bomb.velocity = Vector(x: 0, y: 1)
         }
 
         // Remove bombs that are off-screen
