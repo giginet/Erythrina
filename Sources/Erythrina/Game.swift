@@ -1,22 +1,9 @@
 import Playdate
 
-struct Canon: ~Copyable {
-    private(set) var sprite: Sprite
-    
-    init() {
-        sprite = Sprite(bitmapPath: "images/canon.png")
-        sprite.zIndex = 10
-    }
-    
-    deinit {
-//        sprite.forget()
-    }
-}
-
 final class Game: @unchecked Sendable {
     private var soundPlayer: OpaquePointer?
-    private let background: Sprite
-    private var canon: Canon
+    private var background: SpriteEntity
+    private var canon: SpriteEntity
     private var degree: Float = 0
     
     init() {
@@ -24,24 +11,21 @@ final class Game: @unchecked Sendable {
         let result = Sound.FilePlayer.loadIntoPlayer(soundPlayer!, "sounds/explosion")
         System.logToConsole("\(result)")
         
-        background = Sprite(bitmapPath: "images/background.png")
+        background = SpriteEntity(filePath: "images/background.png")
+        background.anchorPoint = Vector(x: 0, y: 0)
 //        background.addSprite()
         
-        canon = Canon()
-//        canon.sprite.addSprite()
-        canon.sprite.moveTo(x: 100, y: 100)
+        canon = SpriteEntity(filePath: "images/canon.png")
+        canon.position = Vector(x: 100, y: 100)
     }
     
     func initialize() {
-        var background = Self.makeBackground()
-        background.addSprite()
     }
     
     func update(pointer: UnsafeMutableRawPointer!) -> Int32 {
-//        Sprite.drawSprites()
-        Graphics.drawBitmap(bitmap: background.image!.unsafelyUnwrapped, x: 0, y: 0, flip: LCDBitmapFlip(rawValue: 0)!)
-        degree += 10
-        Graphics.drawRotatedBitmap(bitmap: canon.sprite.image!.unsafelyUnwrapped, x: 100, y: 100, degrees: degree, centerx: 0.5, centery: 0.5, xscale: 1, yscale: 1)
+        background.draw()
+        canon.rotate += 10
+        canon.draw()
         
         if System.buttonState.pushed == .a {
             let result = Sound.FilePlayer.play(soundPlayer!, 1)
