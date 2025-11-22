@@ -1,6 +1,12 @@
 import Playdate
 
-public import Playdate
+struct Canon: ~Copyable {
+    private var sprite: Sprite
+    
+    init() {
+        sprite = Sprite(bitmapPath: "images/canon.png")
+    }
+}
 
 final class Game: @unchecked Sendable {
     private var soundPlayer: OpaquePointer?
@@ -23,6 +29,9 @@ final class Game: @unchecked Sendable {
             let result = Sound.FilePlayer.play(soundPlayer!, 1)
             System.logToConsole("\(result)")
         }
+        
+        let change = Crank.change
+        System.logToConsole("\(Int(change * 100))")
                 
         return 1
     }

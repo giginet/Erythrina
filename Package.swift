@@ -57,17 +57,12 @@ let package = Package(
     targets: [
         .target(
             name: "Erythrina",
-            dependencies: ["Playdate"],
+            dependencies: ["Playdate", "GameEngine"],
             swiftSettings: swiftSettingsSimulator,
         ),
         .target(
             name: "CPlaydate",
             cSettings: cSettingsSimulator,
-        ),
-        .target(
-            name: "GameEngine",
-            dependencies: ["Playdate"],
-            swiftSettings: swiftSettingsSimulator,
         ),
         .target(
             name: "Playdate",
