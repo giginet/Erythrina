@@ -21,12 +21,4 @@ extension Sprite {
     }
 }
 
-extension Sprite {
-    static func setupBackground() {
-        var sprite = Sprite(bitmapPath: "images/background.png")
-        sprite.collisionsEnabled = false
-        sprite.zIndex = 0
-        sprite.addSprite()
-        sprite.forget()
-    }
-}
+
