@@ -86,7 +86,7 @@ final class Game: @unchecked Sendable {
     }
 
     private func spawnBomb() {
-        let bomb = SpriteEntity(filePath: "images/bullet.png")
+        let bomb = SpriteEntity(filePath: "images/bomb.png")
         let randomValue = rand()
         let randomX = Float(randomValue % 380) + 10
         bomb.position = Vector(x: randomX, y: -10)
