@@ -1,4 +1,5 @@
 import Playdate
+import CPlaydate
 
 final class Game: @unchecked Sendable {
     private var soundPlayer: OpaquePointer?
@@ -86,8 +87,8 @@ final class Game: @unchecked Sendable {
 
     private func spawnBomb() {
         let bomb = SpriteEntity(filePath: "images/bullet.png")
-        let timeValue = System.getSecondsSinceEpoch(milliseconds: nil)
-        let randomX = Float(timeValue % 380) + 10
+        let randomValue = rand()
+        let randomX = Float(randomValue % 380) + 10
         bomb.position = Vector(x: randomX, y: -10)
         bombs.append(bomb)
     }
