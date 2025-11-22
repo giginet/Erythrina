@@ -23,8 +23,10 @@ final class Game: @unchecked Sendable {
     }
     
     func update(pointer: UnsafeMutableRawPointer!) -> Int32 {
+        let crankAngle = Crank.angle
+        canon.rotate = crankAngle
+        
         background.draw()
-        canon.rotate += 10
         canon.draw()
         
         if System.buttonState.pushed == .a {
