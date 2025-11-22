@@ -65,9 +65,14 @@ let package = Package(
             cSettings: cSettingsSimulator,
         ),
         .target(
+            name: "GameEngine",
+            dependencies: ["Playdate"],
+            swiftSettings: swiftSettingsSimulator,
+        ),
+        .target(
             name: "Playdate",
             dependencies: ["CPlaydate"],
             swiftSettings: swiftSettingsSimulator,
-        )
+        ),
     ]
 )
