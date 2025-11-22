@@ -34,6 +34,23 @@ final class Game: @unchecked Sendable {
         let crankAngle = Crank.angle
         canon.rotate = crankAngle
 
+        // Move canon with left/right buttons
+        let buttonState = System.buttonState
+        if buttonState.current.contains(.left) {
+            canon.position.x -= 3
+        }
+        if buttonState.current.contains(.right) {
+            canon.position.x += 3
+        }
+
+        // Keep canon within screen bounds
+        if canon.position.x < 20 {
+            canon.position.x = 20
+        }
+        if canon.position.x > 380 {
+            canon.position.x = 380
+        }
+
         // Spawn bombs periodically
         if frameCount % bombSpawnInterval == 0 {
             spawnBomb()
