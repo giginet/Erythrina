@@ -115,7 +115,7 @@ extension Sprite {
   }
 
   /// Returns the LCDBitmap currently assigned to the given sprite.
-  var image: LCDBitmap? {
+  public var image: LCDBitmap? {
     spriteAPI.getImage.unsafelyUnwrapped(self.pointer)
   }
 

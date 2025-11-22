@@ -16,7 +16,8 @@ struct Canon: ~Copyable {
 final class Game: @unchecked Sendable {
     private var soundPlayer: OpaquePointer?
     private let background: Sprite
-    private let canon: Canon
+    private var canon: Canon
+    private var degree: Float = 0
     
     init() {
         soundPlayer = Sound.FilePlayer.newPlayer()
@@ -24,10 +25,11 @@ final class Game: @unchecked Sendable {
         System.logToConsole("\(result)")
         
         background = Sprite(bitmapPath: "images/background.png")
-        background.addSprite()
+//        background.addSprite()
         
         canon = Canon()
-        canon.sprite.addSprite()
+//        canon.sprite.addSprite()
+        canon.sprite.moveTo(x: 100, y: 100)
     }
     
     func initialize() {
@@ -36,7 +38,10 @@ final class Game: @unchecked Sendable {
     }
     
     func update(pointer: UnsafeMutableRawPointer!) -> Int32 {
-        Sprite.drawSprites()
+//        Sprite.drawSprites()
+        Graphics.drawBitmap(bitmap: background.image!.unsafelyUnwrapped, x: 0, y: 0, flip: LCDBitmapFlip(rawValue: 0)!)
+        degree += 10
+        Graphics.drawRotatedBitmap(bitmap: canon.sprite.image!.unsafelyUnwrapped, x: 100, y: 100, degrees: degree, centerx: 0.5, centery: 0.5, xscale: 1, yscale: 1)
         
         if System.buttonState.pushed == .a {
             let result = Sound.FilePlayer.play(soundPlayer!, 1)
