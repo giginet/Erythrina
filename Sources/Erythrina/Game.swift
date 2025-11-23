@@ -18,6 +18,7 @@ final class Game: @unchecked Sendable {
     private var canon: SpriteEntity
     private var logo: SpriteEntity
     private var gameoverImage: SpriteEntity
+    private var hearts: [SpriteEntity] = []
     private var degree: Float = 0
     private var bullets: [SpriteEntity] = []
     private var bombs: [SpriteEntity] = []
@@ -74,6 +75,14 @@ final class Game: @unchecked Sendable {
         gameoverImage = SpriteEntity(filePath: "images/gameover.png")
         gameoverImage.position = Vector(x: 133, y: 120)
         gameoverImage.anchorPoint = Vector(x: 0.5, y: 0.5)
+
+        // Create heart sprites for life display (24x24, margin 8px)
+        for i in 0..<maxLife {
+            let heart = SpriteEntity(filePath: "images/heart.png")
+            heart.position = Vector(x: 8 + Float(i) * 32, y: 8 + 12) // 8px margin + index * (24 + 8), centered vertically
+            heart.anchorPoint = Vector(x: 0, y: 0)
+            hearts.append(heart)
+        }
     }
     
     func initialize() {
@@ -207,6 +216,11 @@ final class Game: @unchecked Sendable {
 
         // Draw explosions
         explosions.forEach { $0.draw() }
+
+        // Draw hearts based on current life
+        for i in 0..<life {
+            hearts[i].updateAndDraw()
+        }
 
         // TODO: Draw score when text API is available
         // System.logToConsole("Score: \(score)")
