@@ -23,6 +23,8 @@ final class Game: @unchecked Sendable {
     private var bombs: [SpriteEntity] = []
     private var explosions: [Explosion] = []
     private var score: Int = 0
+    private var life: Int = 3
+    private let maxLife: Int = 3
     private var frameCount: Int = 0
     private var bombSpawnInterval: Int = 30
     private var currentState: GameState = .ready
@@ -60,7 +62,8 @@ final class Game: @unchecked Sendable {
 //        background.addSprite()
 
         canon = SpriteEntity(filePath: "images/canon.png")
-        canon.position = Vector(x: 200, y: 200)
+        canon.position = Vector(x: 200, y: 220)
+        canon.anchorPoint = Vector(x: 0.5, y: 0.75)
 
         // Logo for ready state - positioned at left 1/3, vertical center
         logo = SpriteEntity(filePath: "images/logo.png")
@@ -137,22 +140,43 @@ final class Game: @unchecked Sendable {
             bomb.velocity = Vector(x: 0, y: 1)
         }
 
-        // Check if any bomb is within 8 pixels of canon (game over)
-        for bomb in bombs {
-            let distance = bomb.position.distance(to: canon.position)
-            if distance < 8 {
-                // Play player explosion sound
-                Sound.FilePlayer.play(playerExplosionPlayer!, 1)
+        // Check if any bomb reached the bottom (y >= 240)
+        var bombsToRemove: [Int] = []
+        for (index, bomb) in bombs.enumerated() {
+            if bomb.position.y >= 240 {
+                bombsToRemove.append(index)
 
-                // Create explosion at canon position
-                let explosion = Explosion(position: canon.position, imagePath: "images/explosion-player.png")
+                // Create explosion at bomb position
+                let explosion = Explosion(position: bomb.position)
                 explosions.append(explosion)
 
-                // Transition to game over delay state
-                currentState = .gameOverDelay
-                gameOverDelayTimer = 0
-                return
+                // Play explosion sound
+                Sound.FilePlayer.play(explosionPlayer!, 1)
+
+                // Decrease life
+                life -= 1
+                System.logToConsole("Life: \(life)")
+
+                // Check if game over
+                if life <= 0 {
+                    // Play player explosion sound
+                    Sound.FilePlayer.play(playerExplosionPlayer!, 1)
+
+                    // Create explosion at canon position
+                    let playerExplosion = Explosion(position: canon.position, imagePath: "images/explosion-player.png")
+                    explosions.append(playerExplosion)
+
+                    // Transition to game over delay state
+                    currentState = .gameOverDelay
+                    gameOverDelayTimer = 0
+                    return
+                }
             }
+        }
+
+        // Remove bombs that reached the bottom
+        for index in bombsToRemove.reversed() {
+            bombs.remove(at: index)
         }
 
         // Remove bombs that are off-screen
@@ -244,8 +268,10 @@ final class Game: @unchecked Sendable {
         bombs.removeAll()
         explosions.removeAll()
         score = 0
+        life = maxLife
         frameCount = 0
-        canon.position = Vector(x: 200, y: 200)
+        canon.position = Vector(x: 200, y: 220)
+        canon.anchorPoint = Vector(x: 0.5, y: 0.75)
     }
     
     private func shootBullet() {
