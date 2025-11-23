@@ -1,6 +1,12 @@
 import Playdate
 import CPlaydate
 
+enum GameState {
+    case ready
+    case playing
+    case over
+}
+
 final class Game: @unchecked Sendable {
     private var soundPlayer: OpaquePointer?
     private var background: SpriteEntity
@@ -8,9 +14,11 @@ final class Game: @unchecked Sendable {
     private var degree: Float = 0
     private var bullets: [SpriteEntity] = []
     private var bombs: [SpriteEntity] = []
+    private var explosions: [Explosion] = []
     private var score: Int = 0
     private var frameCount: Int = 0
     private var bombSpawnInterval: Int = 30
+    private var currentState: GameState = .ready
     
     init() {
         soundPlayer = Sound.FilePlayer.newPlayer()
@@ -73,11 +81,22 @@ final class Game: @unchecked Sendable {
         // Check collisions between bullets and bombs
         checkCollisions()
 
+        // Update explosions
+        for i in 0..<explosions.count {
+            explosions[i].update()
+        }
+
+        // Remove finished explosions
+        explosions.removeAll { $0.isFinished }
+
         background.updateAndDraw()
         canon.updateAndDraw()
 
         bullets.forEach { $0.updateAndDraw() }
         bombs.forEach { $0.updateAndDraw() }
+
+        // Draw explosions
+        explosions.forEach { $0.draw() }
 
         // TODO: Draw score when text API is available
         // System.logToConsole("Score: \(score)")
@@ -121,6 +140,10 @@ final class Game: @unchecked Sendable {
                     bombsToRemove.append(bombIndex)
                     score += 100
                     System.logToConsole("Hit! Score: \(score)")
+
+                    // Create explosion at bomb position
+                    let explosion = Explosion(position: bomb.position)
+                    explosions.append(explosion)
                 }
             }
         }
