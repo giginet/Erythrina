@@ -11,6 +11,8 @@ final class Game: @unchecked Sendable {
     private var soundPlayer: OpaquePointer?
     private var background: SpriteEntity
     private var canon: SpriteEntity
+    private var logo: SpriteEntity
+    private var gameoverImage: SpriteEntity
     private var degree: Float = 0
     private var bullets: [SpriteEntity] = []
     private var bombs: [SpriteEntity] = []
@@ -24,26 +26,61 @@ final class Game: @unchecked Sendable {
         soundPlayer = Sound.FilePlayer.newPlayer()
         let result = Sound.FilePlayer.loadIntoPlayer(soundPlayer!, "sounds/explosion")
         System.logToConsole("\(result)")
-        
+
         background = SpriteEntity(filePath: "images/background.png")
         background.anchorPoint = Vector(x: 0, y: 0)
 //        background.addSprite()
-        
+
         canon = SpriteEntity(filePath: "images/canon.png")
         canon.position = Vector(x: 200, y: 200)
+
+        // Logo for ready state - positioned at left 1/3, vertical center
+        logo = SpriteEntity(filePath: "images/logo.png")
+        logo.position = Vector(x: 133, y: 120)
+        logo.anchorPoint = Vector(x: 0.5, y: 0.5)
+
+        // Game over image - positioned at left 1/3, vertical center
+        gameoverImage = SpriteEntity(filePath: "images/gameover.png")
+        gameoverImage.position = Vector(x: 133, y: 120)
+        gameoverImage.anchorPoint = Vector(x: 0.5, y: 0.5)
     }
     
     func initialize() {
     }
     
     func update(pointer: UnsafeMutableRawPointer!) -> Int32 {
+        let buttonState = System.buttonState
+
+        switch currentState {
+        case .ready:
+            updateReady(buttonState: buttonState)
+        case .playing:
+            updatePlaying(buttonState: buttonState)
+        case .over:
+            updateGameOver(buttonState: buttonState)
+        }
+
+        return 1
+    }
+
+    private func updateReady(buttonState: (current: PDButtons, pushed: PDButtons, released: PDButtons)) {
+        background.updateAndDraw()
+        logo.updateAndDraw()
+
+        // Press A to start game
+        if buttonState.pushed == .a {
+            currentState = .playing
+            frameCount = 0
+        }
+    }
+
+    private func updatePlaying(buttonState: (current: PDButtons, pushed: PDButtons, released: PDButtons)) {
         frameCount += 1
 
         let crankAngle = Crank.angle
         canon.rotate = crankAngle
 
         // Move canon with left/right buttons
-        let buttonState = System.buttonState
         if buttonState.current.contains(.left) {
             canon.position.x -= 3
         }
@@ -67,6 +104,14 @@ final class Game: @unchecked Sendable {
         // Update bombs position (falling)
         for bomb in bombs {
             bomb.velocity = Vector(x: 0, y: 1)
+        }
+
+        // Check if any bomb reached the bottom (game over)
+        for bomb in bombs {
+            if bomb.position.y > 240 {
+                currentState = .over
+                return
+            }
         }
 
         // Remove bombs that are off-screen
@@ -101,15 +146,33 @@ final class Game: @unchecked Sendable {
         // TODO: Draw score when text API is available
         // System.logToConsole("Score: \(score)")
 
-        if System.buttonState.pushed == .a {
+        if buttonState.pushed == .a {
             let result = Sound.FilePlayer.play(soundPlayer!, 1)
             shootBullet()
         }
 
         let change = Crank.change
         System.logToConsole("\(Int(change * 100))")
+    }
 
-        return 1
+    private func updateGameOver(buttonState: (current: PDButtons, pushed: PDButtons, released: PDButtons)) {
+        background.updateAndDraw()
+        gameoverImage.updateAndDraw()
+
+        // Press A to restart
+        if buttonState.pushed == .a {
+            resetGame()
+            currentState = .ready
+        }
+    }
+
+    private func resetGame() {
+        bullets.removeAll()
+        bombs.removeAll()
+        explosions.removeAll()
+        score = 0
+        frameCount = 0
+        canon.position = Vector(x: 200, y: 200)
     }
     
     private func shootBullet() {
