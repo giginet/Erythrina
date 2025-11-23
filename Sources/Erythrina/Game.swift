@@ -106,9 +106,10 @@ final class Game: @unchecked Sendable {
             bomb.velocity = Vector(x: 0, y: 1)
         }
 
-        // Check if any bomb reached the bottom (game over)
+        // Check if any bomb is within 8 pixels of canon (game over)
         for bomb in bombs {
-            if bomb.position.y > 240 {
+            let distance = bomb.position.distance(to: canon.position)
+            if distance < 8 {
                 currentState = .over
                 return
             }
