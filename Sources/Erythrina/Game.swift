@@ -4,12 +4,14 @@ import CPlaydate
 enum GameState {
     case ready
     case playing
+    case gameOverDelay
     case over
 }
 
 final class Game: @unchecked Sendable {
     private var explosionPlayer: OpaquePointer?
     private var shotPlayer: OpaquePointer?
+    private var playerExplosionPlayer: OpaquePointer?
     private var background: SpriteEntity
     private var canon: SpriteEntity
     private var logo: SpriteEntity
@@ -22,6 +24,8 @@ final class Game: @unchecked Sendable {
     private var frameCount: Int = 0
     private var bombSpawnInterval: Int = 30
     private var currentState: GameState = .ready
+    private var gameOverDelayTimer: Int = 0
+    private let gameOverDelayDuration: Int = 120 // 2 seconds at 60fps
 
     init() {
         // Load explosion sound
@@ -33,6 +37,11 @@ final class Game: @unchecked Sendable {
         shotPlayer = Sound.FilePlayer.newPlayer()
         let shotResult = Sound.FilePlayer.loadIntoPlayer(shotPlayer!, "sounds/shot")
         System.logToConsole("Shot sound loaded: \(shotResult)")
+
+        // Load player explosion sound
+        playerExplosionPlayer = Sound.FilePlayer.newPlayer()
+        let playerExplosionResult = Sound.FilePlayer.loadIntoPlayer(playerExplosionPlayer!, "sounds/explosion-player")
+        System.logToConsole("Player explosion sound loaded: \(playerExplosionResult)")
 
         background = SpriteEntity(filePath: "images/background.png")
         background.anchorPoint = Vector(x: 0, y: 0)
@@ -63,6 +72,8 @@ final class Game: @unchecked Sendable {
             updateReady(buttonState: buttonState)
         case .playing:
             updatePlaying(buttonState: buttonState)
+        case .gameOverDelay:
+            updateGameOverDelay(buttonState: buttonState)
         case .over:
             updateGameOver(buttonState: buttonState)
         }
@@ -117,7 +128,16 @@ final class Game: @unchecked Sendable {
         for bomb in bombs {
             let distance = bomb.position.distance(to: canon.position)
             if distance < 8 {
-                currentState = .over
+                // Play player explosion sound
+                Sound.FilePlayer.play(playerExplosionPlayer!, 1)
+
+                // Create explosion at canon position
+                let explosion = Explosion(position: canon.position)
+                explosions.append(explosion)
+
+                // Transition to game over delay state
+                currentState = .gameOverDelay
+                gameOverDelayTimer = 0
                 return
             }
         }
@@ -161,6 +181,37 @@ final class Game: @unchecked Sendable {
 
         let change = Crank.change
         System.logToConsole("\(Int(change * 100))")
+    }
+
+    private func updateGameOverDelay(buttonState: (current: PDButtons, pushed: PDButtons, released: PDButtons)) {
+        gameOverDelayTimer += 1
+
+        // Continue updating bombs and explosions during delay
+        for bomb in bombs {
+            bomb.velocity = Vector(x: 0, y: 1)
+        }
+
+        // Update explosions
+        for i in 0..<explosions.count {
+            explosions[i].update()
+        }
+
+        // Remove finished explosions
+        explosions.removeAll { $0.isFinished }
+
+        background.updateAndDraw()
+        // Don't draw canon during game over delay
+
+        bullets.forEach { $0.updateAndDraw() }
+        bombs.forEach { $0.updateAndDraw() }
+
+        // Draw explosions
+        explosions.forEach { $0.draw() }
+
+        // After delay duration, transition to game over state
+        if gameOverDelayTimer >= gameOverDelayDuration {
+            currentState = .over
+        }
     }
 
     private func updateGameOver(buttonState: (current: PDButtons, pushed: PDButtons, released: PDButtons)) {
