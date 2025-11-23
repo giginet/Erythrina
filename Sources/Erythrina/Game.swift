@@ -27,7 +27,7 @@ final class Game: @unchecked Sendable {
     private var life: Int = 3
     private let maxLife: Int = 3
     private var frameCount: Int = 0
-    private var bombSpawnInterval: Int = 30
+    private var bombSpawnInterval: Int = 60
     private var currentState: GameState = .ready
     private var gameOverDelayTimer: Int = 0
     private let gameOverDelayDuration: Int = 120 // 2 seconds at 60fps
