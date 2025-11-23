@@ -8,7 +8,8 @@ enum GameState {
 }
 
 final class Game: @unchecked Sendable {
-    private var soundPlayer: OpaquePointer?
+    private var explosionPlayer: OpaquePointer?
+    private var shotPlayer: OpaquePointer?
     private var background: SpriteEntity
     private var canon: SpriteEntity
     private var logo: SpriteEntity
@@ -21,11 +22,17 @@ final class Game: @unchecked Sendable {
     private var frameCount: Int = 0
     private var bombSpawnInterval: Int = 30
     private var currentState: GameState = .ready
-    
+
     init() {
-        soundPlayer = Sound.FilePlayer.newPlayer()
-        let result = Sound.FilePlayer.loadIntoPlayer(soundPlayer!, "sounds/explosion")
-        System.logToConsole("\(result)")
+        // Load explosion sound
+        explosionPlayer = Sound.FilePlayer.newPlayer()
+        let explosionResult = Sound.FilePlayer.loadIntoPlayer(explosionPlayer!, "sounds/explosion2")
+        System.logToConsole("Explosion sound loaded: \(explosionResult)")
+
+        // Load shot sound
+        shotPlayer = Sound.FilePlayer.newPlayer()
+        let shotResult = Sound.FilePlayer.loadIntoPlayer(shotPlayer!, "sounds/shot")
+        System.logToConsole("Shot sound loaded: \(shotResult)")
 
         background = SpriteEntity(filePath: "images/background.png")
         background.anchorPoint = Vector(x: 0, y: 0)
@@ -148,7 +155,7 @@ final class Game: @unchecked Sendable {
         // System.logToConsole("Score: \(score)")
 
         if buttonState.pushed == .a {
-            let result = Sound.FilePlayer.play(soundPlayer!, 1)
+            Sound.FilePlayer.play(shotPlayer!, 1)
             shootBullet()
         }
 
@@ -204,6 +211,9 @@ final class Game: @unchecked Sendable {
                     bombsToRemove.append(bombIndex)
                     score += 100
                     System.logToConsole("Hit! Score: \(score)")
+
+                    // Play explosion sound
+                    Sound.FilePlayer.play(explosionPlayer!, 1)
 
                     // Create explosion at bomb position
                     let explosion = Explosion(position: bomb.position)
