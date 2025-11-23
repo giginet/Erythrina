@@ -132,7 +132,7 @@ final class Game: @unchecked Sendable {
                 Sound.FilePlayer.play(playerExplosionPlayer!, 1)
 
                 // Create explosion at canon position
-                let explosion = Explosion(position: canon.position)
+                let explosion = Explosion(position: canon.position, imagePath: "images/explosion-player.png")
                 explosions.append(explosion)
 
                 // Transition to game over delay state

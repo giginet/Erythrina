@@ -5,8 +5,8 @@ struct Explosion {
     private var timer: Int
     private let duration: Int = 30 // frames to show explosion
 
-    init(position: Vector) {
-        sprite = SpriteEntity(filePath: "images/explosion.png")
+    init(position: Vector, imagePath: StaticString = "images/explosion.png") {
+        sprite = SpriteEntity(filePath: imagePath)
         sprite.position = position
         timer = 0
     }
