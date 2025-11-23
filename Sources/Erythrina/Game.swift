@@ -12,6 +12,7 @@ final class Game: @unchecked Sendable {
     private var explosionPlayer: OpaquePointer?
     private var shotPlayer: OpaquePointer?
     private var playerExplosionPlayer: OpaquePointer?
+    private var gameStartPlayer: OpaquePointer?
     private var background: SpriteEntity
     private var canon: SpriteEntity
     private var logo: SpriteEntity
@@ -42,6 +43,11 @@ final class Game: @unchecked Sendable {
         playerExplosionPlayer = Sound.FilePlayer.newPlayer()
         let playerExplosionResult = Sound.FilePlayer.loadIntoPlayer(playerExplosionPlayer!, "sounds/explosion-player")
         System.logToConsole("Player explosion sound loaded: \(playerExplosionResult)")
+
+        // Load game start sound
+        gameStartPlayer = Sound.FilePlayer.newPlayer()
+        let gameStartResult = Sound.FilePlayer.loadIntoPlayer(gameStartPlayer!, "sounds/gamestart")
+        System.logToConsole("Game start sound loaded: \(gameStartResult)")
 
         background = SpriteEntity(filePath: "images/background.png")
         background.anchorPoint = Vector(x: 0, y: 0)
@@ -87,6 +93,7 @@ final class Game: @unchecked Sendable {
 
         // Press A to start game
         if buttonState.pushed == .a {
+            Sound.FilePlayer.play(gameStartPlayer!, 1)
             currentState = .playing
             frameCount = 0
         }
