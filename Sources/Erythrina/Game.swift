@@ -13,6 +13,7 @@ final class Game: @unchecked Sendable {
     private var shotPlayer: OpaquePointer?
     private var playerExplosionPlayer: OpaquePointer?
     private var gameStartPlayer: OpaquePointer?
+    private var gameOverPlayer: OpaquePointer?
     private var background: SpriteEntity
     private var canon: SpriteEntity
     private var logo: SpriteEntity
@@ -48,6 +49,11 @@ final class Game: @unchecked Sendable {
         gameStartPlayer = Sound.FilePlayer.newPlayer()
         let gameStartResult = Sound.FilePlayer.loadIntoPlayer(gameStartPlayer!, "sounds/gamestart")
         System.logToConsole("Game start sound loaded: \(gameStartResult)")
+
+        // Load game over sound
+        gameOverPlayer = Sound.FilePlayer.newPlayer()
+        let gameOverResult = Sound.FilePlayer.loadIntoPlayer(gameOverPlayer!, "sounds/gameover")
+        System.logToConsole("Game over sound loaded: \(gameOverResult)")
 
         background = SpriteEntity(filePath: "images/background.png")
         background.anchorPoint = Vector(x: 0, y: 0)
@@ -217,6 +223,7 @@ final class Game: @unchecked Sendable {
 
         // After delay duration, transition to game over state
         if gameOverDelayTimer >= gameOverDelayDuration {
+            Sound.FilePlayer.play(gameOverPlayer!, 1)
             currentState = .over
         }
     }
